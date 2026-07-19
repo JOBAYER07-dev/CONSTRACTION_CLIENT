@@ -134,10 +134,10 @@ const techStack: TechCard[] = [
 ];
 
 const team: TeamMember[] = [
-  { initials: "A", name: "Aritro ", role: "Founder & Lead Engineer", avatarColor: "#10B981" },
-  { initials: "M", name: "Mazumdar", role: "AI Systems Architect", avatarColor: "#38BDF8" },
-  { initials: "A", name: "Apon", role: "Structural Data Lead", avatarColor: "#A78BFA" },
-  { initials: "K", name: "Kabbo", role: "Product & UX", avatarColor: "#F59E0B" },
+  { initials: "J", name: "JOBAYER ", role: "Founder & Lead Engineer", avatarColor: "#10B981" },
+  { initials: "A", name: "ANIK", role: "AI Systems Architect", avatarColor: "#38BDF8" },
+  { initials: "S", name: "SIYAM", role: "Structural Data Lead", avatarColor: "#A78BFA" },
+  { initials: "R", name: "RIFAT", role: "Product & UX", avatarColor: "#F59E0B" },
 ];
 
 // ─── Framer Motion Variants ───────────────────────────────────────────────────

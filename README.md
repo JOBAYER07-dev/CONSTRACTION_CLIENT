@@ -10,8 +10,8 @@ Plan smarter. Estimate faster. Build better.
 ![BetterAuth](https://img.shields.io/badge/BetterAuth-Authentication-orange)
 ![Groq AI](https://img.shields.io/badge/Groq-AI-purple)
 
-
 ---
+
 # 📖 About
 
 ConstructIQ AI is an AI-powered web application designed to simplify construction planning. Users can generate intelligent construction estimates, manage their saved projects, and receive instant construction guidance through an AI assistant.
@@ -24,33 +24,13 @@ The application combines modern web technologies with AI to make preliminary pla
 
 ### 🚀 Live Website
 
-https://construct-iq-ai.vercel.app
+https://constraction-client.vercel.app
 
 ### ⚡ Backend API
 
-https://construct-iq-ai-server.vercel.app
-
-
----
-
-## 📸 Screenshots
-
-| Home | Explore |
-|------|---------|
-| ![](https://i.ibb.co.com/jkPMvJK7/image.png) | ![](https://i.ibb.co.com/zTHZhjmG/image.png) |
-
-| Create Estimate | AI Chat |
-|------|---------|
-| ![](https://i.ibb.co.com/DDbfqwnP/image.png) | ![](https://i.ibb.co.com/8DNgKNdb/image.png) |
-
-| Manage Estimates |
-|------|
-| ![](https://i.ibb.co.com/prXTjRN8/image.png) |
+https://your-backend-url.onrender.com
 
 ---
-
-
-
 
 # ✨ Features
 
@@ -91,6 +71,7 @@ https://construct-iq-ai-server.vercel.app
 
 - Better Auth
 - Email & Password Login
+- Google Social Login
 - Secure Session Authentication
 
 ---
@@ -134,13 +115,13 @@ https://construct-iq-ai-server.vercel.app
 Clone the repository
 
 ```bash
-git clone https://github.com/AritraApon/ConstructIQ-AI.git
+git clone https://github.com/JOBAYER07-dev/CONSTRACTION_CLIENT.git
 ```
 
 Move to project
 
 ```bash
-cd ConstructIQ-AI
+cd CONSTRACTION_CLIENT
 ```
 
 Install dependencies
@@ -159,21 +140,16 @@ npm run dev
 
 # 🔑 Environment Variables
 
-### Client
+### Client (`.env.local`)
 
 ```env
-NEXT_PUBLIC_API_URL=
-NEXT_PUBLIC_BASE_URL=
-```
-
-### Server
-
-```env
-PORT=
-
 MONGODB_URI=
-
-GROQ_API_KEY=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=
+NEXT_PUBLIC_BETTER_AUTH_URL=
+NEXT_PUBLIC_BASE_URL=
 ```
 
 ---
@@ -223,16 +199,16 @@ Can answer questions about
 
 # 👨‍💻 Developer
 
-### Aritro Mazumdar
+### Jobayer Hosen
 
-GitHub
-https://github.com/AritraApon
+GitHub:
+https://github.com/JOBAYER07-dev
 
 Portfolio:
-https://protfolio-page-one.vercel.app/
+https://jobayerhosen-portfolio.vercel.app
 
 LinkedIn:
-https://www.linkedin.com/in/aritro-mazumdar-011206apon
+https://www.linkedin.com/in/jobayer-dev
 
 ---
 
