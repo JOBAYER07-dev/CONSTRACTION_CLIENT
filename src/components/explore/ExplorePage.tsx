@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { getMutation } from '@/lib/core/server';
 
 interface Project {
@@ -23,58 +24,47 @@ interface ProjectsResponse {
 }
 
 export default function ExplorePage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState('');
   const [search, setSearch] = useState('');
   const [buildingType, setBuildingType] = useState('All');
+  const [location, setLocation] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
-  const [isPending, startTransition] = useTransition();
 
   const itemsPerPage = 12;
 
-  // Fetch projects from backend using getMutation
-  const fetchProjects = async (searchVal: string, typeVal: string) => {
-    setLoading(true);
-    setErrorMsg('');
-    try {
-      const typeQuery = typeVal === 'All' ? '' : typeVal;
-      const url = `/api/projects?search=${encodeURIComponent(searchVal)}&buildingType=${encodeURIComponent(typeQuery)}`;
+  const {
+    data: projects = [],
+    isLoading: loading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['projects', search, buildingType, location, sortBy],
+    queryFn: async (): Promise<Project[]> => {
+      const typeQuery = buildingType === 'All' ? '' : buildingType;
+      const params = new URLSearchParams({
+        search,
+        buildingType: typeQuery,
+        location,
+        sortBy,
+      });
+      const url = `/api/projects?${params.toString()}`;
 
       const res = await getMutation<ProjectsResponse>(url);
 
       if ('error' in res) {
-        setErrorMsg(res.message || 'Failed to load projects.');
-        setProjects([]);
-      } else if (res.success && Array.isArray(res.data)) {
-        setProjects(res.data);
-      } else {
-        setErrorMsg('Failed to load projects.');
-        setProjects([]);
+        throw new Error(res.message || 'Failed to load projects.');
       }
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Something went wrong.';
-      setErrorMsg(message);
-      setProjects([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (res.success && Array.isArray(res.data)) {
+        return res.data;
+      }
+      throw new Error('Failed to load projects.');
+    },
+    staleTime: 1000 * 30,
+  });
 
-  // Fetch when search query or building type changes (with transition for smooth state updates)
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      startTransition(() => {
-        fetchProjects(search, buildingType);
-        setCurrentPage(1); // Reset page on filter change
-      });
-    }, 300); // 300ms debounce for typing search
+  const errorMsg = isError ? (error as Error).message : '';
 
-    return () => clearTimeout(handler);
-  }, [search, buildingType]);
-
-  // Pagination calculation
   const totalPages = Math.ceil(projects.length / itemsPerPage);
   const displayedProjects = projects.slice(
     (currentPage - 1) * itemsPerPage,
@@ -88,7 +78,6 @@ export default function ExplorePage() {
     }
   };
 
-  // Get badge color based on building type
   const getBadgeStyle = (type: string) => {
     switch (type.toLowerCase()) {
       case 'commercial':
@@ -105,7 +94,6 @@ export default function ExplorePage() {
   return (
     <div className="min-h-screen bg-[#020617] text-[#F8FAFC] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-10">
-        {/* Header Section */}
         <div className="text-center space-y-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -126,15 +114,13 @@ export default function ExplorePage() {
           </motion.p>
         </div>
 
-        {/* Search & Filter Controls */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex flex-col md:flex-row gap-4 p-5 rounded-2xl bg-[#0F172A]/50 border border-slate-800 backdrop-blur-xl shadow-xl"
+          className="flex flex-col md:flex-row flex-wrap gap-4 p-5 rounded-2xl bg-[#0F172A]/50 border border-slate-800 backdrop-blur-xl shadow-xl"
         >
-          {/* Search Field */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 min-w-[200px]">
             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
               <svg
                 className="h-5 w-5"
@@ -154,16 +140,21 @@ export default function ExplorePage() {
               type="text"
               placeholder="Search projects by title..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full bg-[#0F172A] border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-[#F8FAFC] placeholder-slate-500 outline-none focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] transition-all duration-300 shadow-inner"
             />
           </div>
 
-          {/* Filter Dropdown */}
-          <div className="w-full md:w-64">
+          <div className="w-full md:w-56">
             <select
               value={buildingType}
-              onChange={e => setBuildingType(e.target.value)}
+              onChange={e => {
+                setBuildingType(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full bg-[#0F172A] border border-slate-800 rounded-xl px-4 py-3 text-[#F8FAFC] outline-none focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] transition-all duration-300 cursor-pointer shadow-inner appearance-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
@@ -178,11 +169,44 @@ export default function ExplorePage() {
               <option value="Industrial">Industrial</option>
             </select>
           </div>
+
+          <div className="w-full md:w-56">
+            <input
+              type="text"
+              placeholder="Filter by location..."
+              value={location}
+              onChange={e => {
+                setLocation(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full bg-[#0F172A] border border-slate-800 rounded-xl px-4 py-3 text-[#F8FAFC] placeholder-slate-500 outline-none focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] transition-all duration-300 shadow-inner"
+            />
+          </div>
+
+          <div className="w-full md:w-56">
+            <select
+              value={sortBy}
+              onChange={e => {
+                setSortBy(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full bg-[#0F172A] border border-slate-800 rounded-xl px-4 py-3 text-[#F8FAFC] outline-none focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] transition-all duration-300 cursor-pointer shadow-inner appearance-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+                backgroundPosition: 'right 0.75rem center',
+                backgroundSize: '1.25rem',
+                backgroundRepeat: 'no-repeat',
+              }}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="area_asc">Area: Low to High</option>
+              <option value="area_desc">Area: High to Low</option>
+            </select>
+          </div>
         </motion.div>
 
-        {/* Main Grid & States */}
         {loading ? (
-          /* Skeleton Loader Grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, idx) => (
               <div
@@ -203,7 +227,7 @@ export default function ExplorePage() {
           <div className="text-center py-16 bg-[#0F172A]/30 border border-slate-800/50 rounded-2xl">
             <p className="text-red-400 text-lg mb-2">⚠️ {errorMsg}</p>
             <button
-              onClick={() => fetchProjects(search, buildingType)}
+              onClick={() => refetch()}
               className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-sm font-semibold rounded-xl transition-all"
             >
               Try Again
@@ -229,7 +253,6 @@ export default function ExplorePage() {
             </p>
           </div>
         ) : (
-          /* Project Grid */
           <>
             <motion.div
               layout
@@ -247,12 +270,10 @@ export default function ExplorePage() {
                     whileHover={{ scale: 1.03 }}
                     className="group relative bg-[#0F172A] border border-slate-800/80 hover:border-emerald-500/30 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 flex flex-col justify-between"
                   >
-                    {/* Entire Card acts as Link */}
                     <Link
                       href={`/explore/${project._id}`}
                       className="block flex-grow"
                     >
-                      {/* Image section */}
                       <div className="relative aspect-video w-full overflow-hidden bg-slate-900 border-b border-slate-800">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -260,7 +281,6 @@ export default function ExplorePage() {
                           alt={project.title}
                           className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-500"
                         />
-                        {/* Type Tag */}
                         <span
                           className={`absolute top-3 left-3 px-2.5 py-1 text-xs font-semibold rounded-full border backdrop-blur-md ${getBadgeStyle(project.buildingType)}`}
                         >
@@ -268,14 +288,12 @@ export default function ExplorePage() {
                         </span>
                       </div>
 
-                      {/* Card Info */}
                       <div className="p-5 space-y-4">
                         <div className="space-y-1.5">
                           <h3 className="font-bold text-lg text-slate-100 group-hover:text-emerald-400 transition-colors line-clamp-1">
                             {project.title}
                           </h3>
                           <div className="flex items-center text-sm text-slate-400 gap-1.5">
-                            {/* Location Icon */}
                             <svg
                               className="h-4 w-4 text-emerald-500 flex-shrink-0"
                               fill="none"
@@ -299,7 +317,6 @@ export default function ExplorePage() {
                           </div>
                         </div>
 
-                        {/* Additional stats */}
                         <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-800/60">
                           <span>
                             Area:{' '}
@@ -321,7 +338,6 @@ export default function ExplorePage() {
                       </div>
                     </Link>
 
-                    {/* View Details Button */}
                     <div className="px-5 pb-5 pt-0">
                       <Link
                         href={`/explore/${project._id}`}
@@ -348,10 +364,8 @@ export default function ExplorePage() {
               </AnimatePresence>
             </motion.div>
 
-            {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 pt-10">
-                {/* Previous Button */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
@@ -373,7 +387,6 @@ export default function ExplorePage() {
                   </svg>
                 </button>
 
-                {/* Page Numbers */}
                 {Array.from({ length: totalPages }).map((_, idx) => {
                   const pageNum = idx + 1;
                   const isCurrent = pageNum === currentPage;
@@ -392,7 +405,6 @@ export default function ExplorePage() {
                   );
                 })}
 
-                {/* Next Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
