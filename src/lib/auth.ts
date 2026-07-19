@@ -8,6 +8,10 @@ const db = client.db('ConstructIQ');
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET as string,
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+  trustedOrigins: [
+    'http://localhost:3000',
+    'https://constraction-client.vercel.app',
+  ],
   database: mongodbAdapter(db, {
     client,
   }),
