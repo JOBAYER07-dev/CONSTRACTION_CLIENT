@@ -180,9 +180,21 @@ export const deleteMutation = async <T>(
   }
 };
 
+interface Project {
+  _id: string;
+  title: string;
+  image: string;
+  area: number;
+  buildingType: string;
+  location: string;
+  aiEstimate: string;
+  userId: string;
+  createdAt: string;
+}
+
 interface ProjectListResponse {
   success: boolean;
-  data: unknown[];
+  data: Project[];
 }
 
 interface DeleteResponse {
