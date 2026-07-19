@@ -189,12 +189,12 @@ interface DeleteResponse {
   success: boolean;
 }
 
-export const getProjects = async (): Promise<unknown[]> => {
+export const getProjects = async (): Promise<ProjectListResponse> => {
   const res = await getMutation<ProjectListResponse>('/api/projects');
   if ('error' in res) {
     throw new Error(res.message);
   }
-  return res.data;
+  return res;
 };
 
 export const deleteProject = async (id: string): Promise<boolean> => {
