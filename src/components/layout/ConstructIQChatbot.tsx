@@ -62,7 +62,11 @@ export default function ConstructIQChatbot() {
       });
 
       if (!result) throw new Error("No response received from server");
-      if ("error" in result) throw new Error((result as any).message || "Failed to get AI response");
+      if ('error' in result)
+        throw new Error(
+          (result as { message?: string }).message ||
+            'Failed to get AI response',
+        );
 
       if (result.success && result.reply) {
         const botMsg: Message = {
@@ -75,7 +79,7 @@ export default function ConstructIQChatbot() {
       } else {
         throw new Error("Invalid reply structure from server");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Chatbot communication error:", error);
       const errorMsg: Message = {
         id: Math.random().toString(36).substring(7),

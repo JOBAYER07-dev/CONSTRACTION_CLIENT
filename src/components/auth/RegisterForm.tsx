@@ -58,19 +58,22 @@ export default function RegisterPage() {
     formData.append("image", file);
 
     try {
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?key=${apiKey}`,
+        {
+          method: 'POST',
+          body: formData,
+        },
+      );
 
       const data = await response.json();
       if (data.success) {
         return data.data.url;
       } else {
-        throw new Error(data.error?.message || "Failed to upload image");
+        throw new Error(data.error?.message || 'Failed to upload image');
       }
-    } catch (err: any) {
-      console.error("imgbb Upload Error:", err);
+    } catch (err: unknown) {
+      console.error('imgbb Upload Error:', err);
       return null;
     }
   };
@@ -81,13 +84,15 @@ export default function RegisterPage() {
     setIsGoogleSubmitting(true);
     try {
       await authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/" // সাইন ইন হওয়ার পর যেখানে রিডাইরেক্ট করতে চাও
+        provider: 'google',
+        callbackURL: '/', // সাইন ইন হওয়ার পর যেখানে রিডাইরেক্ট করতে চাও
       });
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google.");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to sign in with Google.';
+      setError(message);
       setIsGoogleSubmitting(false);
-      toast.error(err.message || "Failed to sign in with Google.");
+      toast.error(message);
     }
   };
 

@@ -1,19 +1,19 @@
 'use server';
 
-import { headers } from "next/headers";
-import { auth } from "../auth";
+import { headers } from 'next/headers';
+import { auth } from '../auth';
 
 /**
- * Better Auth এর অফিশিয়াল API ব্যবহার করে সেশন থেকে সরাসরি টোকেন রিড করা
+ * Better Auth এর অফিশিয়াল API ব্যবহার করে সেশন থেকে সরাসরি টোকেন রিড করা
  */
 export const getUserToken = async (): Promise<string | null> => {
   try {
     const session = await auth.api.getSession({
-      headers: await headers() // passing the Next.js request headers
+      headers: await headers(), // passing the Next.js request headers
     });
     return session?.session?.token || null;
   } catch (error) {
-    console.error("Error getting user token via Better Auth API:", error);
+    console.error('Error getting user token via Better Auth API:', error);
     return null;
   }
 };
@@ -29,21 +29,29 @@ export const authHeader = async (): Promise<Record<string, string>> => {
 
 // ব্যাকএন্ডের বেস ইউআরএল (ডিফল্ট: http://localhost:5000)
 const getBaseUrl = (): string => {
-  return process.env.NEXT_PUBLIC_BASE_URL || "https://construct-iq-ai-server.vercel.app";
+  return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000';
+};
+
+// 'any' এড়াতে shared error-message helper (unknown-safe)
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) return error.message;
+  return fallback;
 };
 
 /**
  * ১. GET Mutation (ডাটা রিড করার জন্য)
  */
-export const getMutation = async <T>(url: string): Promise<T | { error: true; message: string }> => {
+export const getMutation = async <T>(
+  url: string,
+): Promise<T | { error: true; message: string }> => {
   const baseUrl = getBaseUrl();
 
   try {
     const authHeadersObj = await authHeader();
 
     const res = await fetch(`${baseUrl}${url}`, {
-      method: "GET",
-      cache: "no-store",
+      method: 'GET',
+      cache: 'no-store',
       headers: {
         ...authHeadersObj,
       },
@@ -54,27 +62,33 @@ export const getMutation = async <T>(url: string): Promise<T | { error: true; me
       throw new Error(errorData.error || `HTTP error! Status: ${res.status}`);
     }
 
-    return await res.json() as T;
-  } catch (error: any) {
-    console.error("GET Error:", error);
-    return { error: true, message: error.message || "Server connection failed!" };
+    return (await res.json()) as T;
+  } catch (error: unknown) {
+    console.error('GET Error:', error);
+    return {
+      error: true,
+      message: getErrorMessage(error, 'Server connection failed!'),
+    };
   }
 };
 
 /**
  * ২. POST Mutation (নতুন ডাটা ক্রিয়েট/অ্যাড করার জন্য)
  */
-export const postMutation = async <T, D>(url: string, data: D): Promise<T | { error: true; message: string }> => {
+export const postMutation = async <T, D>(
+  url: string,
+  data: D,
+): Promise<T | { error: true; message: string }> => {
   const baseUrl = getBaseUrl();
 
   try {
     const authHeadersObj = await authHeader();
 
     const res = await fetch(`${baseUrl}${url}`, {
-      method: "POST",
-      cache: "no-store",
+      method: 'POST',
+      cache: 'no-store',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...authHeadersObj,
       },
       body: JSON.stringify(data),
@@ -85,27 +99,33 @@ export const postMutation = async <T, D>(url: string, data: D): Promise<T | { er
       throw new Error(errorData.error || `HTTP error! Status: ${res.status}`);
     }
 
-    return await res.json() as T;
-  } catch (error: any) {
-    console.error("POST Error:", error);
-    return { error: true, message: error.message || "Server connection failed!" };
+    return (await res.json()) as T;
+  } catch (error: unknown) {
+    console.error('POST Error:', error);
+    return {
+      error: true,
+      message: getErrorMessage(error, 'Server connection failed!'),
+    };
   }
 };
 
 /**
  * ৩. PATCH Mutation (ডাটা আপডেট করার জন্য)
  */
-export const patchMutation = async <T, D>(url: string, data: D): Promise<T | { error: true; message: string }> => {
+export const patchMutation = async <T, D>(
+  url: string,
+  data: D,
+): Promise<T | { error: true; message: string }> => {
   const baseUrl = getBaseUrl();
 
   try {
     const authHeadersObj = await authHeader();
 
     const res = await fetch(`${baseUrl}${url}`, {
-      method: "PATCH",
-      cache: "no-store",
+      method: 'PATCH',
+      cache: 'no-store',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...authHeadersObj,
       },
       body: JSON.stringify(data),
@@ -116,25 +136,30 @@ export const patchMutation = async <T, D>(url: string, data: D): Promise<T | { e
       throw new Error(errorData.error || `HTTP error! Status: ${res.status}`);
     }
 
-    return await res.json() as T;
-  } catch (error: any) {
-    console.error("PATCH Error:", error);
-    return { error: true, message: error.message || "Server connection failed!" };
+    return (await res.json()) as T;
+  } catch (error: unknown) {
+    console.error('PATCH Error:', error);
+    return {
+      error: true,
+      message: getErrorMessage(error, 'Server connection failed!'),
+    };
   }
 };
 
 /**
  * ৪. DELETE Mutation (ডাটা ডিলিট করার জন্য)
  */
-export const deleteMutation = async <T>(url: string): Promise<T | { error: true; message: string }> => {
+export const deleteMutation = async <T>(
+  url: string,
+): Promise<T | { error: true; message: string }> => {
   const baseUrl = getBaseUrl();
 
   try {
     const authHeadersObj = await authHeader();
 
     const res = await fetch(`${baseUrl}${url}`, {
-      method: "DELETE",
-      cache: "no-store",
+      method: 'DELETE',
+      cache: 'no-store',
       headers: {
         ...authHeadersObj,
       },
@@ -145,24 +170,36 @@ export const deleteMutation = async <T>(url: string): Promise<T | { error: true;
       throw new Error(errorData.error || `HTTP error! Status: ${res.status}`);
     }
 
-    return await res.json() as T;
-  } catch (error: any) {
-    console.error("DELETE Error:", error);
-    return { error: true, message: error.message || "Server connection failed!" };
+    return (await res.json()) as T;
+  } catch (error: unknown) {
+    console.error('DELETE Error:', error);
+    return {
+      error: true,
+      message: getErrorMessage(error, 'Server connection failed!'),
+    };
   }
 };
 
-export const getProjects = async (): Promise<any> => {
-  const res = await getMutation<any>('/api/projects');
-  if (res && 'error' in res) {
+interface ProjectListResponse {
+  success: boolean;
+  data: unknown[];
+}
+
+interface DeleteResponse {
+  success: boolean;
+}
+
+export const getProjects = async (): Promise<unknown[]> => {
+  const res = await getMutation<ProjectListResponse>('/api/projects');
+  if ('error' in res) {
     throw new Error(res.message);
   }
-  return res;
+  return res.data;
 };
 
 export const deleteProject = async (id: string): Promise<boolean> => {
-  const res = await deleteMutation<any>(`/api/projects/${id}`);
-  if (res && 'error' in res) {
+  const res = await deleteMutation<DeleteResponse>(`/api/projects/${id}`);
+  if ('error' in res) {
     return false;
   }
   return res?.success === true;

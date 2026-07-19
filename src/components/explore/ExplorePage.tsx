@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { getMutation } from "@/lib/core/server";
+import { useEffect, useState, useTransition } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { getMutation } from '@/lib/core/server';
 
 interface Project {
   _id: string;
@@ -25,9 +25,9 @@ interface ProjectsResponse {
 export default function ExplorePage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [search, setSearch] = useState("");
-  const [buildingType, setBuildingType] = useState("All");
+  const [errorMsg, setErrorMsg] = useState('');
+  const [search, setSearch] = useState('');
+  const [buildingType, setBuildingType] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [isPending, startTransition] = useTransition();
 
@@ -36,24 +36,26 @@ export default function ExplorePage() {
   // Fetch projects from backend using getMutation
   const fetchProjects = async (searchVal: string, typeVal: string) => {
     setLoading(true);
-    setErrorMsg("");
+    setErrorMsg('');
     try {
-      const typeQuery = typeVal === "All" ? "" : typeVal;
+      const typeQuery = typeVal === 'All' ? '' : typeVal;
       const url = `/api/projects?search=${encodeURIComponent(searchVal)}&buildingType=${encodeURIComponent(typeQuery)}`;
 
       const res = await getMutation<ProjectsResponse>(url);
 
-      if ("error" in res) {
-        setErrorMsg(res.message || "Failed to load projects.");
+      if ('error' in res) {
+        setErrorMsg(res.message || 'Failed to load projects.');
         setProjects([]);
       } else if (res.success && Array.isArray(res.data)) {
         setProjects(res.data);
       } else {
-        setErrorMsg("Failed to load projects.");
+        setErrorMsg('Failed to load projects.');
         setProjects([]);
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || "Something went wrong.");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Something went wrong.';
+      setErrorMsg(message);
       setProjects([]);
     } finally {
       setLoading(false);
@@ -76,34 +78,33 @@ export default function ExplorePage() {
   const totalPages = Math.ceil(projects.length / itemsPerPage);
   const displayedProjects = projects.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   // Get badge color based on building type
   const getBadgeStyle = (type: string) => {
     switch (type.toLowerCase()) {
-      case "commercial":
-        return "bg-sky-500/10 text-sky-400 border-sky-500/20";
-      case "residential":
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-      case "industrial":
-        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+      case 'commercial':
+        return 'bg-sky-500/10 text-sky-400 border-sky-500/20';
+      case 'residential':
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+      case 'industrial':
+        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
       default:
-        return "bg-slate-500/10 text-slate-400 border-slate-500/20";
+        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
     }
   };
 
   return (
     <div className="min-h-screen bg-[#020617] text-[#F8FAFC] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-10">
-
         {/* Header Section */}
         <div className="text-center space-y-4">
           <motion.h1
@@ -120,7 +121,8 @@ export default function ExplorePage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-lg text-slate-400 max-w-2xl mx-auto"
           >
-            Discover real-time cost estimations, material requirements, and detailed construction insights for various building designs.
+            Discover real-time cost estimations, material requirements, and
+            detailed construction insights for various building designs.
           </motion.p>
         </div>
 
@@ -134,15 +136,25 @@ export default function ExplorePage() {
           {/* Search Field */}
           <div className="relative flex-1">
             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </span>
             <input
               type="text"
               placeholder="Search projects by title..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value)}
               className="w-full bg-[#0F172A] border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-[#F8FAFC] placeholder-slate-500 outline-none focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] transition-all duration-300 shadow-inner"
             />
           </div>
@@ -151,13 +163,13 @@ export default function ExplorePage() {
           <div className="w-full md:w-64">
             <select
               value={buildingType}
-              onChange={(e) => setBuildingType(e.target.value)}
+              onChange={e => setBuildingType(e.target.value)}
               className="w-full bg-[#0F172A] border border-slate-800 rounded-xl px-4 py-3 text-[#F8FAFC] outline-none focus:border-[#10B981] focus:ring-1 focus:ring-[#10B981] transition-all duration-300 cursor-pointer shadow-inner appearance-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
                 backgroundPosition: 'right 0.75rem center',
                 backgroundSize: '1.25rem',
-                backgroundRepeat: 'no-repeat'
+                backgroundRepeat: 'no-repeat',
               }}
             >
               <option value="All">All Types</option>
@@ -199,10 +211,22 @@ export default function ExplorePage() {
           </div>
         ) : projects.length === 0 ? (
           <div className="text-center py-20 bg-[#0F172A]/30 border border-slate-800/50 rounded-2xl space-y-3">
-            <svg className="mx-auto h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            <svg
+              className="mx-auto h-12 w-12 text-slate-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              />
             </svg>
-            <p className="text-slate-400 text-lg">No projects match your search criteria.</p>
+            <p className="text-slate-400 text-lg">
+              No projects match your search criteria.
+            </p>
           </div>
         ) : (
           /* Project Grid */
@@ -218,13 +242,16 @@ export default function ExplorePage() {
                     layoutId={project._id}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
+                    viewport={{ once: true, margin: '-50px' }}
                     transition={{ duration: 0.4, delay: (idx % 4) * 0.05 }}
                     whileHover={{ scale: 1.03 }}
                     className="group relative bg-[#0F172A] border border-slate-800/80 hover:border-emerald-500/30 rounded-2xl overflow-hidden shadow-lg transition-all duration-300 flex flex-col justify-between"
                   >
                     {/* Entire Card acts as Link */}
-                    <Link href={`/explore/${project._id}`} className="block flex-grow">
+                    <Link
+                      href={`/explore/${project._id}`}
+                      className="block flex-grow"
+                    >
                       {/* Image section */}
                       <div className="relative aspect-video w-full overflow-hidden bg-slate-900 border-b border-slate-800">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -234,7 +261,9 @@ export default function ExplorePage() {
                           className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-500"
                         />
                         {/* Type Tag */}
-                        <span className={`absolute top-3 left-3 px-2.5 py-1 text-xs font-semibold rounded-full border backdrop-blur-md ${getBadgeStyle(project.buildingType)}`}>
+                        <span
+                          className={`absolute top-3 left-3 px-2.5 py-1 text-xs font-semibold rounded-full border backdrop-blur-md ${getBadgeStyle(project.buildingType)}`}
+                        >
                           {project.buildingType}
                         </span>
                       </div>
@@ -247,9 +276,24 @@ export default function ExplorePage() {
                           </h3>
                           <div className="flex items-center text-sm text-slate-400 gap-1.5">
                             {/* Location Icon */}
-                            <svg className="h-4 w-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <svg
+                              className="h-4 w-4 text-emerald-500 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
                             </svg>
                             <span className="truncate">{project.location}</span>
                           </div>
@@ -257,8 +301,22 @@ export default function ExplorePage() {
 
                         {/* Additional stats */}
                         <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-800/60">
-                          <span>Area: <strong className="text-slate-300">{project.area.toLocaleString()} sqft</strong></span>
-                          <span>{new Date(project.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                          <span>
+                            Area:{' '}
+                            <strong className="text-slate-300">
+                              {project.area.toLocaleString()} sqft
+                            </strong>
+                          </span>
+                          <span>
+                            {new Date(project.createdAt).toLocaleDateString(
+                              undefined,
+                              {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                              },
+                            )}
+                          </span>
                         </div>
                       </div>
                     </Link>
@@ -270,12 +328,21 @@ export default function ExplorePage() {
                         className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-[#10B981] hover:text-[#020617] text-sm font-bold text-[#F8FAFC] transition-all duration-300 shadow-md group-hover:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
                       >
                         <span>View Details</span>
-                        <svg className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                        <svg
+                          className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2.5"
+                            d="M9 5l7 7-7 7"
+                          />
                         </svg>
                       </Link>
                     </div>
-
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -291,8 +358,18 @@ export default function ExplorePage() {
                   className="flex items-center justify-center p-2.5 rounded-xl bg-[#0F172A] border border-slate-800 text-slate-400 hover:text-[#10B981] hover:border-[#10B981] disabled:opacity-50 disabled:hover:text-slate-400 disabled:hover:border-slate-800 disabled:cursor-not-allowed transition-all duration-200"
                   aria-label="Previous Page"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                 </button>
 
@@ -306,8 +383,8 @@ export default function ExplorePage() {
                       onClick={() => handlePageChange(pageNum)}
                       className={`min-w-[40px] h-10 px-3 flex items-center justify-center rounded-xl border font-semibold text-sm transition-all duration-200 ${
                         isCurrent
-                          ? "bg-[#10B981] border-[#10B981] text-[#020617] shadow-[0_0_10px_rgba(16,185,129,0.3)]"
-                          : "bg-[#0F172A] border-slate-800 text-slate-400 hover:text-[#10B981] hover:border-[#10B981]"
+                          ? 'bg-[#10B981] border-[#10B981] text-[#020617] shadow-[0_0_10px_rgba(16,185,129,0.3)]'
+                          : 'bg-[#0F172A] border-slate-800 text-slate-400 hover:text-[#10B981] hover:border-[#10B981]'
                       }`}
                     >
                       {pageNum}
@@ -322,15 +399,24 @@ export default function ExplorePage() {
                   className="flex items-center justify-center p-2.5 rounded-xl bg-[#0F172A] border border-slate-800 text-slate-400 hover:text-[#10B981] hover:border-[#10B981] disabled:opacity-50 disabled:hover:text-slate-400 disabled:hover:border-slate-800 disabled:cursor-not-allowed transition-all duration-200"
                   aria-label="Next Page"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>
             )}
           </>
         )}
-
       </div>
     </div>
   );
