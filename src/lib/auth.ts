@@ -7,12 +7,10 @@ const db = client.db('ConstructIQ');
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET as string,
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
   database: mongodbAdapter(db, {
-    // Optional: if you don't provide a client, database transactions won't be enabled.
     client,
   }),
-
   emailAndPassword: {
     enabled: true,
   },
