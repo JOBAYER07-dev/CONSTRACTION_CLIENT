@@ -12,7 +12,7 @@ interface Message {
   timestamp: Date;
 }
 
-export default function ConstructIQChatbot() {
+export default function ConstructiONChatbot() {
   const { data: session } = authClient.useSession();
   const name = session?.user?.name || "there";
 
@@ -20,7 +20,7 @@ export default function ConstructIQChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      text: `Hello! I am your ConstructIQ Assistant. Ask me anything about civil engineering estimations, project planning, or cost calculations!`,
+      text: `Hello! I am your constractiON Assistant. Ask me anything about civil engineering estimations, project planning, or cost calculations!`,
       sender: "bot",
       timestamp: new Date(),
     },
@@ -132,7 +132,7 @@ export default function ConstructIQChatbot() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981]/60 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#10B981]"></span>
                 </span>
-                <span className="font-semibold text-sm text-[#F8FAFC] tracking-wide">ConstructIQ Assistant</span>
+                <span className="font-semibold text-sm text-[#F8FAFC] tracking-wide">ConstructiON Assistant</span>
               </div>
               <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition cursor-pointer" aria-label="Close chat">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

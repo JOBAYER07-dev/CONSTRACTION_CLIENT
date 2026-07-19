@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: "Register Your Account",
-  description: "Construct IQ AI",
+  description: "constractiON AI",
 };
 
 const RegisterPage = () => {

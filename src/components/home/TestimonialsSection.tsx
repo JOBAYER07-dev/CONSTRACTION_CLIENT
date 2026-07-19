@@ -11,7 +11,7 @@ const testimonials = [
     avatarColor: "#10B981",
     rating: 5,
     quote:
-      "ConstructIQ's AI Estimate engine shaved three weeks off our pre-construction phase. The material takeoff accuracy is the best I've seen from any SaaS platform — period.",
+      "ConstructiON's AI Estimate engine shaved three weeks off our pre-construction phase. The material takeoff accuracy is the best I've seen from any SaaS platform — period.",
   },
   {
     name: "Sarah Lin",
@@ -31,7 +31,7 @@ const testimonials = [
     avatarColor: "#A78BFA",
     rating: 5,
     quote:
-      "We manage 40+ concurrent projects and ConstructIQ is the only platform that keeps material audits clean and timelines synchronized across all sites.",
+      "We manage 40+ concurrent projects and ConstructiON is the only platform that keeps material audits clean and timelines synchronized across all sites.",
   },
   {
     name: "Priya Krishnan",
@@ -51,7 +51,7 @@ const testimonials = [
     avatarColor: "#10B981",
     rating: 5,
     quote:
-      "Switching to ConstructIQ halved our project setup time. The dashboard is incredibly intuitive and the export-to-PDF feature is flawless.",
+      "Switching to ConstructiON halved our project setup time. The dashboard is incredibly intuitive and the export-to-PDF feature is flawless.",
   },
   {
     name: "Amara Diallo",
@@ -103,7 +103,7 @@ export default function TestimonialsSection() {
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
             Hear from structural engineers, PMs, and QS professionals who rely
-            on ConstructIQ every day.
+            on ConstructiON every day.
           </p>
         </motion.div>
 

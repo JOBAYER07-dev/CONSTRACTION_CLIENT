@@ -112,8 +112,8 @@ export default function LoginForm() {
             Welcome Back
           </h2>
           <p className="mt-1 text-xs text-[#F8FAFC]/60 sm:text-sm">
-            Sign in to your Construct
-            <span className="text-[#10B981] font-semibold">IQ</span> account
+            Sign in to your 
+            <span className="text-[#10B981] font-semibold">constractiON</span> account
           </p>
         </div>
 

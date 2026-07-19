@@ -10,7 +10,7 @@ import CTASection from "@/components/home/CTASection";
 
 
 export const metadata = {
-  title: "ConstructIQ AI — AI-Powered Civil Engineering Estimator",
+  title: "ConstructiON AI — AI-Powered Civil Engineering Estimator",
   description:
     "Harness machine learning to generate precise construction cost estimates, track material pipelines, and accelerate your civil engineering projects.",
 };

@@ -201,7 +201,7 @@ export default function SupportPage() {
             Support Center
           </SectionLabel>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-5">
-            ConstructIQ{" "}
+            constractiON{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400">
               Resolution Center
             </span>

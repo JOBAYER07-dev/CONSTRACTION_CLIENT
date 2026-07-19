@@ -193,7 +193,7 @@ export default function ExploreDetailsPage({ params }: { params: Promise<{ id: s
           visibility: visible !important;
         }
         #explore-print-section::before {
-          content: "ConstructIQ AI — Cost Estimate Report\\A ${projectTitle}  •  ${dateStr}";
+          content: "constractiON AI — Cost Estimate Report\\A ${projectTitle}  •  ${dateStr}";
           white-space: pre;
           display: block;
           font-size: 14pt;
@@ -208,7 +208,7 @@ export default function ExploreDetailsPage({ params }: { params: Promise<{ id: s
     document.head.appendChild(styleEl);
 
     const prevTitle = document.title;
-    document.title = `ConstructIQ \u2014 ${projectTitle} \u2014 Report (${dateStr})`;
+    document.title = `constractiON \u2014 ${projectTitle} \u2014 Report (${dateStr})`;
 
     window.print();
 

@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import { ToastContainer } from 'react-toastify';
-import ConstructIQChatbot from '@/components/layout/ConstructIQChatbot';
 import Footer from '@/components/layout/Footer';
 import Providers from '@/providers';
+import ConstructiONChatbot from '@/components/layout/ConstrutiONChatbot';
 
 export const metadata: Metadata = {
   title: 'ConstructIQ AI - Next-Gen Cost Estimation',
@@ -29,7 +29,7 @@ export default function RootLayout({
 
           <main className="flex-grow w-full relative z-10">{children}</main>
 
-          <ConstructIQChatbot />
+          <ConstructiONChatbot />
           <Footer />
           <ToastContainer position="bottom-left" theme="dark" />
         </Providers>

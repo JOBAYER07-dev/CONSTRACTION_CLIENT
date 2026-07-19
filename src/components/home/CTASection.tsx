@@ -67,7 +67,7 @@ export default function CTASection() {
             transition={{ delay: 0.2, type: "spring", stiffness: 80 }}
             className="text-slate-400 text-lg max-w-2xl mx-auto mb-10"
           >
-            Join thousands of engineers and project managers using ConstructIQ to
+            Join thousands of engineers and project managers using ConstructiON to
             generate AI-powered cost estimates in seconds — no manual spreadsheets,
             no guesswork.
           </motion.p>

@@ -18,7 +18,7 @@ const faqs = [
     a: "Our globally distributed edge network maintains an average of ~45ms for AI Assistant queries and ~90-150ms for full AI Estimate inference runs. Larger models with complex structural datasets may take up to 30 seconds depending on blueprint complexity.",
   },
   {
-    q: "Can I integrate ConstructIQ with my existing project management tools?",
+    q: "Can I integrate ConstructiON with my existing project management tools?",
     a: "Yes. We provide a RESTful API and webhook system compatible with Procore, Autodesk BIM 360, and Primavera P6. CSV/Excel export and PDF generation are available on all paid plans.",
   },
   {

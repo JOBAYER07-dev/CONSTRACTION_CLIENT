@@ -8,7 +8,7 @@ const steps = [
     num: "01",
     icon: FolderPlus,
     title: "Add Project",
-    desc: "Initialize a new project by entering structural parameters, project location, and uploading blueprint data. ConstructIQ organizes everything into a structured dataset.",
+    desc: "Initialize a new project by entering structural parameters, project location, and uploading blueprint data. ConstructiON organizes everything into a structured dataset.",
     accent: "#10B981",
   },
   {

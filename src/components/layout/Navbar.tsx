@@ -65,7 +65,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <span className="text-xl font-extrabold tracking-wider text-[#F8FAFC]">
-                Construct<span className="text-[#10B981]">IQ</span>
+                constracti<span className="text-[#10B981]">ON</span>
               </span>
               <span className="rounded-full bg-[#38BDF8]/10 px-2 py-0.5 text-xs font-semibold text-[#38BDF8] border border-[#38BDF8]/20">
                 AI

@@ -1,4 +1,4 @@
-# 🏗️ ConstructIQ AI
+# 🏗️ constractiON AI
 
 > **AI-Powered Construction Planning Assistant**
 
@@ -14,7 +14,7 @@ Plan smarter. Estimate faster. Build better.
 
 # 📖 About
 
-ConstructIQ AI is an AI-powered web application designed to simplify construction planning. Users can generate intelligent construction estimates, manage their saved projects, and receive instant construction guidance through an AI assistant.
+constractiON AI is an AI-powered web application designed to simplify construction planning. Users can generate intelligent construction estimates, manage their saved projects, and receive instant construction guidance through an AI assistant.
 
 The application combines modern web technologies with AI to make preliminary planning faster, smarter, and more accessible for students, contractors, and homeowners.
 

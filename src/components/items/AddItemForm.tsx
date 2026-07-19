@@ -204,7 +204,7 @@ export default function AddItemForm({ userId }: { userId: string }) {
           visibility: visible !important;
         }
         #estimate-print-section::before {
-          content: "ConstructIQ AI — Cost Estimate Report\\A ${projectLabel}  •  ${dateStr}";
+          content: "constractiON AI — Cost Estimate Report\\A ${projectLabel}  •  ${dateStr}";
           white-space: pre;
           display: block;
           font-size: 14pt;
@@ -219,7 +219,7 @@ export default function AddItemForm({ userId }: { userId: string }) {
     document.head.appendChild(styleEl);
 
     const prevTitle = document.title;
-    document.title = `ConstructIQ — ${projectLabel} — Estimate (${dateStr})`;
+    document.title = `constractiON — ${projectLabel} — Estimate (${dateStr})`;
 
     window.print();
 

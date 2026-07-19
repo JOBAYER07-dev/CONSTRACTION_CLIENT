@@ -56,7 +56,7 @@ export default function Footer() {
                 </svg>
               </div>
               <span className="text-xl font-extrabold tracking-wide text-white">
-                Construct<span className="text-emerald-400">IQ</span>
+                constracti<span className="text-emerald-400">ON</span>
               </span>
               <span className="rounded-full bg-sky-400/10 px-2 py-0.5 text-[10px] font-bold text-sky-400 border border-sky-400/20">
                 AI
@@ -160,7 +160,7 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>
-            © {new Date().getFullYear()} ConstructIQ AI. All rights reserved.
+            © {new Date().getFullYear()} constractiON AI. All rights reserved.
           </p>
           <div className="flex items-center gap-1.5 font-medium text-slate-400">
             <span className="relative flex h-2 w-2">

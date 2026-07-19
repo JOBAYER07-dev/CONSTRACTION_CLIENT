@@ -229,7 +229,7 @@ export default function About() {
               custom={0.1}
               className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-8"
             >
-              ConstructIQ AI was founded on a single conviction: that the gap between{" "}
+              constractiON AI was founded on a single conviction: that the gap between{" "}
               <strong className="text-white font-semibold">machine learning precision</strong> and{" "}
               <strong className="text-white font-semibold">structural engineering constraints</strong> is not a
               technical barrier — it&apos;s an integration problem. We exist to solve it.
@@ -444,7 +444,7 @@ export default function About() {
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
               The People Behind{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400">
-                ConstructIQ
+                constractiON
               </span>
             </h2>
           </motion.div>
@@ -498,7 +498,7 @@ export default function About() {
               </span>
             </h2>
             <p className="text-slate-400 text-base max-w-xl mx-auto mb-8">
-              Join over 1,200 engineering teams already using ConstructIQ AI to
+              Join over 1,200 engineering teams already using constractiON AI to
               eliminate manual estimation and deliver projects on budget.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
