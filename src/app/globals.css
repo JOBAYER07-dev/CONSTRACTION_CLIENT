@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+/* ─── Custom Cursor ──────────────────────────────────────────────────────────
+   Hides the native OS cursor only on precise-pointer devices (mouse/trackpad)
+   so the CustomCursor component (dot + trailing ring) is the only cursor the
+   user sees. Touch devices are completely untouched — pointer:fine excludes
+   them, so there's no risk of "losing" the cursor on mobile/tablet.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (pointer: fine) and (min-width: 768px) {
+
+  html,
+  body,
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  [role='button'],
+  .cursor-pointer {
+    cursor: none !important;
+  }
+}
+
+
 /* ─── Brand Color Policy ────────────────────────────────────────────────────
    Primary palette (2 colors + neutral, per project UI rules):
      - Emerald #10B981  → primary brand / CTA color
