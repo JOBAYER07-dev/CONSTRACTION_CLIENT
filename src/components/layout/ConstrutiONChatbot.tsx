@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { postMutation } from '@/lib/core/server';
 import { authClient } from '@/lib/auth-client';
 
 interface Message {
@@ -11,6 +10,49 @@ interface Message {
   sender: 'user' | 'bot';
   timestamp: Date;
 }
+
+// Public base URL for the backend (same var used by the server-action helpers).
+const getBaseUrl = (): string =>
+  process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000';
+
+/**
+ * Simple, monotonically-increasing message ID generator.
+ * Deliberately avoids Math.random()/crypto.randomUUID() so the React
+ * Compiler doesn't flag the call site as an impure function during render —
+ * this lives at module scope and is only ever invoked from event handlers,
+ * but keeping it counter-based sidesteps the lint rule entirely.
+ */
+let messageIdCounter = 0;
+const generateMessageId = (): string => {
+  messageIdCounter += 1;
+  return `msg-${Date.now()}-${messageIdCounter}`;
+};
+
+/**
+ * Parses a raw Server-Sent-Events chunk buffer and returns any complete
+ * "event: ...\ndata: ...\n\n" blocks found, plus whatever incomplete text
+ * should be kept around for the next chunk.
+ */
+const parseSSEBuffer = (
+  buffer: string,
+): { events: { event: string; data: string }[]; rest: string } => {
+  const events: { event: string; data: string }[] = [];
+  const blocks = buffer.split('\n\n');
+  const rest = blocks.pop() || '';
+
+  for (const block of blocks) {
+    const lines = block.split('\n');
+    let event = 'message';
+    let data = '';
+    for (const line of lines) {
+      if (line.startsWith('event: ')) event = line.slice(7).trim();
+      if (line.startsWith('data: ')) data = line.slice(6);
+    }
+    if (data) events.push({ event, data });
+  }
+
+  return { events, rest };
+};
 
 export default function ConstructiONChatbot() {
   const { data: session } = authClient.useSession();
@@ -27,6 +69,8 @@ export default function ConstructiONChatbot() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [streamingText, setStreamingText] = useState<string>('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -38,17 +82,15 @@ export default function ConstructiONChatbot() {
     if (isOpen) {
       scrollToBottom();
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, streamingText, suggestions]);
 
-  const handleSend = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+  const sendMessage = async (userText: string) => {
+    if (!userText.trim() || isLoading) return;
 
-    const userText = inputValue.trim();
-    setInputValue('');
+    setSuggestions([]); // clear old suggestions once a new question is asked
 
     const userMsg: Message = {
-      id: Math.random().toString(36).substring(7),
+      id: generateMessageId(),
       text: userText,
       sender: 'user',
       timestamp: new Date(),
@@ -66,41 +108,63 @@ export default function ConstructiONChatbot() {
 
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
+    setStreamingText('');
 
     try {
-      const result = await postMutation<
-        { success: boolean; reply: string },
-        {
-          message: string;
-          history: { role: 'user' | 'assistant'; content: string }[];
-        }
-      >('/api/ai/chat', {
-        message: userText,
-        history,
+      const res = await fetch(`${getBaseUrl()}/api/ai/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText, history }),
       });
 
-      if (!result) throw new Error('No response received from server');
-      if ('error' in result)
-        throw new Error(
-          (result as { message?: string }).message ||
-            'Failed to get AI response',
-        );
-
-      if (result.success && result.reply) {
-        const botMsg: Message = {
-          id: Math.random().toString(36).substring(7),
-          text: result.reply,
-          sender: 'bot',
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, botMsg]);
-      } else {
-        throw new Error('Invalid reply structure from server');
+      if (!res.ok || !res.body) {
+        throw new Error(`Server responded with status ${res.status}`);
       }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let finalReply = '';
+      let finalSuggestions: string[] = [];
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const { events, rest } = parseSSEBuffer(buffer);
+        buffer = rest;
+
+        for (const evt of events) {
+          if (evt.event === 'chunk') {
+            const { token } = JSON.parse(evt.data) as { token: string };
+            finalReply += token;
+            setStreamingText(prev => prev + token);
+          } else if (evt.event === 'done') {
+            const data = JSON.parse(evt.data) as {
+              reply: string;
+              suggestions?: string[];
+            };
+            finalReply = data.reply;
+            finalSuggestions = data.suggestions || [];
+          } else if (evt.event === 'error') {
+            throw new Error('AI stream reported an error');
+          }
+        }
+      }
+
+      const botMsg: Message = {
+        id: generateMessageId(),
+        text: finalReply || "I'm sorry, I couldn't generate a response.",
+        sender: 'bot',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, botMsg]);
+      setSuggestions(finalSuggestions);
     } catch (error: unknown) {
       console.error('Chatbot communication error:', error);
       const errorMsg: Message = {
-        id: Math.random().toString(36).substring(7),
+        id: generateMessageId(),
         text: "I'm sorry, I encountered an error communicating with the estimation AI. Please try again shortly.",
         sender: 'bot',
         timestamp: new Date(),
@@ -108,7 +172,21 @@ export default function ConstructiONChatbot() {
       setMessages(prev => [...prev, errorMsg]);
     } finally {
       setIsLoading(false);
+      setStreamingText('');
     }
+  };
+
+  const handleSend = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const userText = inputValue.trim();
+    if (!userText) return;
+    setInputValue('');
+    await sendMessage(userText);
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    if (isLoading) return;
+    void sendMessage(suggestion);
   };
 
   return (
@@ -249,12 +327,36 @@ export default function ConstructiONChatbot() {
                         />
                       </svg>
                     </div>
-                    <div className="bg-[#020617] px-4 py-3 rounded-2xl rounded-tl-none border border-slate-900 flex items-center space-x-1.5 shadow-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-bounce [animation-delay:-0.3s]" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-bounce [animation-delay:-0.15s]" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-bounce" />
-                    </div>
+                    {streamingText ? (
+                      // Tokens have started arriving — show them live with a blinking cursor.
+                      <div className="bg-[#020617] text-[#F8FAFC] px-4 py-2.5 rounded-2xl rounded-tl-none border border-slate-900 text-sm leading-relaxed shadow-sm">
+                        {streamingText}
+                        <span className="inline-block w-1.5 h-3.5 ml-0.5 bg-[#10B981] animate-pulse align-middle" />
+                      </div>
+                    ) : (
+                      // Waiting for the first token — bouncing-dots typing indicator.
+                      <div className="bg-[#020617] px-4 py-3 rounded-2xl rounded-tl-none border border-slate-900 flex items-center space-x-1.5 shadow-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-bounce [animation-delay:-0.3s]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-bounce [animation-delay:-0.15s]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-bounce" />
+                      </div>
+                    )}
                   </div>
+                </div>
+              )}
+
+              {!isLoading && suggestions.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2 pl-10">
+                  {suggestions.map((s, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSuggestionClick(s)}
+                      className="text-xs text-left px-3 py-1.5 rounded-full border border-[#38BDF8]/30 text-[#38BDF8] bg-[#38BDF8]/5 hover:bg-[#38BDF8]/15 transition cursor-pointer"
+                    >
+                      {s}
+                    </button>
+                  ))}
                 </div>
               )}
               <div ref={messagesEndRef} />
