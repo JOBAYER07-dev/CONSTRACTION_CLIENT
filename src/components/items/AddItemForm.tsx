@@ -60,6 +60,20 @@ const OUTPUT_LENGTH_OPTIONS: { value: OutputLength; label: string }[] = [
   { value: 'detailed', label: 'Detailed (~500+ words)' },
 ];
 
+// Used when the user doesn't provide an image (file upload or URL) — keeps
+// cards/listing/detail views from breaking instead of forcing an image.
+const DEFAULT_PROJECT_IMAGE =
+  'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=800&auto=format&fit=crop';
+
+const isLikelyImageUrl = (value: string): boolean => {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 export default function AddItemForm({ userId }: { userId: string }) {
   const [formData, setFormData] = useState({
     title: '',
@@ -71,6 +85,7 @@ export default function AddItemForm({ userId }: { userId: string }) {
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
 
   // AI generation controls
@@ -294,6 +309,7 @@ export default function AddItemForm({ userId }: { userId: string }) {
       location: '',
     });
     setImageFile(null);
+    setImageUrl('');
     setAiRawEstimate('');
     setRegenerateCount(0);
     setPromptStyle('standard');
@@ -405,24 +421,36 @@ export default function AddItemForm({ userId }: { userId: string }) {
       toast.error('Generate an AI estimate first before submitting!');
       return;
     }
-    if (!imageFile) {
-      toast.error('Please select a project image!');
+
+    // Image is optional: prefer an uploaded file, then a pasted URL,
+    // then fall back to a default placeholder so cards never break.
+    if (imageUrl.trim() && !isLikelyImageUrl(imageUrl.trim())) {
+      toast.error('Please enter a valid image URL (starting with http/https).');
       return;
     }
 
     setLoading(true);
-    const toastId = toast.loading('Uploading image and saving project...');
+    const toastId = toast.loading('Saving project...');
 
-    const imageUrl = await uploadToImgBB(imageFile);
-    if (!imageUrl) {
-      setLoading(false);
-      toast.dismiss(toastId);
-      return;
+    let finalImageUrl: string = DEFAULT_PROJECT_IMAGE;
+    if (imageFile) {
+      toast.update(toastId, {
+        render: 'Uploading image and saving project...',
+      });
+      const uploaded = await uploadToImgBB(imageFile);
+      if (!uploaded) {
+        setLoading(false);
+        toast.dismiss(toastId);
+        return;
+      }
+      finalImageUrl = uploaded;
+    } else if (imageUrl.trim()) {
+      finalImageUrl = imageUrl.trim();
     }
 
     const payload = {
       ...formData,
-      image: imageUrl,
+      image: finalImageUrl,
       area: Number(formData.area),
       userId,
       aiEstimate: aiRawEstimate,
@@ -483,15 +511,31 @@ export default function AddItemForm({ userId }: { userId: string }) {
 
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                Project Image
+                Project Image{' '}
+                <span className="text-slate-500 font-normal">(optional)</span>
               </label>
               <input
                 type="file"
                 accept="image/*"
-                required
-                onChange={e => setImageFile(e.target.files?.[0] || null)}
+                onChange={e => {
+                  setImageFile(e.target.files?.[0] || null);
+                  if (e.target.files?.[0]) setImageUrl('');
+                }}
                 className="w-full px-4 py-2 bg-[#020617] border border-slate-700 rounded-lg text-slate-400 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#10B981] file:text-[#020617] hover:file:opacity-90 cursor-pointer"
               />
+              <div className="mt-2">
+                <label className="block text-xs text-slate-500 mb-1">
+                  Or paste an image URL instead
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://example.com/image.jpg"
+                  value={imageUrl}
+                  disabled={!!imageFile}
+                  onChange={e => setImageUrl(e.target.value)}
+                  className="w-full px-4 py-2 bg-[#020617] border border-slate-700 rounded-lg text-slate-300 text-sm placeholder-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
+                />
+              </div>
             </div>
           </div>
 
