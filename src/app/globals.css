@@ -1,11 +1,26 @@
 @import "tailwindcss";
 
+/* ─── Brand Color Policy ────────────────────────────────────────────────────
+   Primary palette (2 colors + neutral, per project UI rules):
+     - Emerald #10B981  → primary brand / CTA color
+     - Sky     #38BDF8  → secondary brand / accent color
+     - Slate/Navy (#020617, #0F172A, #F8FAFC, #334155, #64748B) → neutral base
+   The following colors are FUNCTIONAL, not brand colors, and are intentionally
+   excluded from the primary-color count:
+     - Amber/Red  → status colors (warnings, destructive actions, disclaimers)
+     - Purple/Amber/Red in Recharts (Bar/Pie charts) → data-series colors,
+       required so users can visually distinguish material categories
+     - #4285F4/#34A853/#FBBC05/#EA4335 → Google's official brand colors,
+       required by Google's sign-in button branding guidelines
+   ─────────────────────────────────────────────────────────────────────────── */
+
 /* ─── Print Styles ──────────────────────────────────────────────────────────
    Suppresses all layout chrome (Navbar, Footer, Chatbot) and prepares a
    clean single-page PDF output. Applied globally so both /items/add and
    /explore/[id] PDF exports render consistently.
    ─────────────────────────────────────────────────────────────────────────── */
 @media print {
+
   /* Hide persistent layout elements */
   nav,
   footer,
@@ -30,8 +45,8 @@
   }
 
   /* Ensure the main content area fills the print page */
-  body > main,
-  #__next > main {
+  body>main,
+  #__next>main {
     padding: 0 !important;
     margin: 0 !important;
   }

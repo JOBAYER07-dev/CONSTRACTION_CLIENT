@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import type { Variants } from "framer-motion";
+import type { Variants } from 'framer-motion';
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Play } from "lucide-react";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Play } from 'lucide-react';
 
 const slides = [
-  "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1600&q=80",
+  'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1600&q=80',
 ];
 
 const containerVariants = {
@@ -26,7 +26,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: "spring", stiffness: 90, damping: 20 },
+    transition: { type: 'spring', stiffness: 90, damping: 20 },
   },
 } as const;
 
@@ -35,13 +35,13 @@ export default function HeroSection() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
+      setCurrent(prev => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden py-16">
       {/* Background Slideshow */}
       <AnimatePresence mode="sync">
         <motion.div
@@ -49,12 +49,12 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
+          transition={{ duration: 1.2, ease: 'easeInOut' }}
           className="absolute inset-0 z-0"
           style={{
             backgroundImage: `url(${slides[current]})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
           }}
         />
       </AnimatePresence>
@@ -66,19 +66,6 @@ export default function HeroSection() {
       <div className="absolute top-[-15%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/10 blur-[140px] z-10 pointer-events-none" />
       <div className="absolute bottom-0 right-[-10%] w-[40vw] h-[40vw] rounded-full bg-sky-400/10 blur-[140px] z-10 pointer-events-none" />
 
-      {/* Slide indicator dots */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all duration-500 ${
-              i === current ? "w-8 bg-emerald-400" : "w-2 bg-slate-600"
-            }`}
-          />
-        ))}
-      </div>
-
       {/* Hero Content */}
       <motion.div
         className="relative z-20 max-w-5xl mx-auto px-6 text-center"
@@ -86,7 +73,7 @@ export default function HeroSection() {
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={itemVariants }>
+        <motion.div variants={itemVariants}>
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm font-semibold mb-6 backdrop-blur-sm">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -117,7 +104,7 @@ export default function HeroSection() {
         </motion.p>
 
         <motion.div
-          variants={itemVariants }
+          variants={itemVariants}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link
@@ -138,15 +125,34 @@ export default function HeroSection() {
         {/* Trust bar */}
         <motion.div
           variants={itemVariants}
-          className="mt-14 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-500"
+          className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-500"
         >
-          {["No credit card required", "Free 14-day trial", "GDPR compliant"].map(
-            (t) => (
-              <span key={t} className="flex items-center gap-2">
-                <span className="text-emerald-500">✓</span> {t}
-              </span>
-            )
-          )}
+          {[
+            'No credit card required',
+            'Free 14-day trial',
+            'GDPR compliant',
+          ].map(t => (
+            <span key={t} className="flex items-center gap-2">
+              <span className="text-emerald-500">✓</span> {t}
+            </span>
+          ))}
+        </motion.div>
+
+        {/* Slide indicator dots */}
+        <motion.div
+          variants={itemVariants}
+          className="mt-8 flex items-center justify-center gap-2"
+        >
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all duration-500 ${
+                i === current ? 'w-8 bg-emerald-400' : 'w-2 bg-slate-600'
+              }`}
+            />
+          ))}
         </motion.div>
       </motion.div>
     </section>

@@ -16,6 +16,14 @@ import {
   Legend,
 } from 'recharts';
 
+type PromptStyle = 'standard' | 'detailed' | 'summary';
+type OutputLength = 'short' | 'standard' | 'detailed';
+
+interface GenerateEstimateResponse {
+  success: boolean;
+  estimate: string;
+}
+
 interface ProjectResponse {
   success: boolean;
   message: string;
@@ -23,6 +31,34 @@ interface ProjectResponse {
     aiEstimate: string;
   };
 }
+
+const PROMPT_STYLE_OPTIONS: {
+  value: PromptStyle;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: 'standard',
+    label: 'Standard Report',
+    description: 'Clean, professional breakdown — the default format.',
+  },
+  {
+    value: 'detailed',
+    label: 'Detailed Technical',
+    description: 'Includes reasoning behind each material quantity.',
+  },
+  {
+    value: 'summary',
+    label: 'Client Summary',
+    description: 'Plain-language summary, minimal jargon.',
+  },
+];
+
+const OUTPUT_LENGTH_OPTIONS: { value: OutputLength; label: string }[] = [
+  { value: 'short', label: 'Short (~150 words)' },
+  { value: 'standard', label: 'Standard (~300 words)' },
+  { value: 'detailed', label: 'Detailed (~500+ words)' },
+];
 
 export default function AddItemForm({ userId }: { userId: string }) {
   const [formData, setFormData] = useState({
@@ -36,7 +72,14 @@ export default function AddItemForm({ userId }: { userId: string }) {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+
+  // AI generation controls
+  const [promptStyle, setPromptStyle] = useState<PromptStyle>('standard');
+  const [outputLength, setOutputLength] = useState<OutputLength>('standard');
   const [aiRawEstimate, setAiRawEstimate] = useState<string>('');
+  const [generating, setGenerating] = useState<boolean>(false);
+  const [regenerateCount, setRegenerateCount] = useState<number>(0);
+
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleChange = (
@@ -46,6 +89,11 @@ export default function AddItemForm({ userId }: { userId: string }) {
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  const canGenerate =
+    formData.area.trim() !== '' &&
+    formData.buildingType.trim() !== '' &&
+    formData.location.trim() !== '';
 
   const parsedData = useMemo(() => {
     if (!aiRawEstimate) return null;
@@ -247,6 +295,9 @@ export default function AddItemForm({ userId }: { userId: string }) {
     });
     setImageFile(null);
     setAiRawEstimate('');
+    setRegenerateCount(0);
+    setPromptStyle('standard');
+    setOutputLength('standard');
     toast.success('Form cleared!');
   };
 
@@ -296,17 +347,71 @@ export default function AddItemForm({ userId }: { userId: string }) {
     document.head.removeChild(styleEl);
   };
 
-  const handleGenerateAndSubmit = async (e: React.FormEvent) => {
+  // STEP 1: Generate (or regenerate) the AI estimate preview — no DB write yet.
+  const handleGenerateEstimate = async () => {
+    if (!canGenerate) {
+      toast.error('Fill in Area, Building Type and Location first!');
+      return;
+    }
+
+    setGenerating(true);
+    const toastId = toast.loading(
+      aiRawEstimate
+        ? 'Regenerating estimate with AI...'
+        : 'Generating estimate with AI...',
+    );
+
+    const result = await postMutation<
+      GenerateEstimateResponse,
+      {
+        area: number;
+        buildingType: string;
+        location: string;
+        promptStyle: PromptStyle;
+        outputLength: OutputLength;
+      }
+    >('/api/ai/generate-estimate', {
+      area: Number(formData.area),
+      buildingType: formData.buildingType,
+      location: formData.location,
+      promptStyle,
+      outputLength,
+    });
+
+    setGenerating(false);
+    toast.dismiss(toastId);
+
+    if ('error' in result) {
+      toast.error(result.message || 'Failed to generate estimate!');
+      return;
+    }
+
+    if (result.success && result.estimate) {
+      setAiRawEstimate(result.estimate);
+      setRegenerateCount(c => c + 1);
+      toast.success(
+        regenerateCount > 0
+          ? 'Estimate regenerated!'
+          : 'Estimate generated! Review it below.',
+      );
+    }
+  };
+
+  // STEP 2: Final submit — uploads image and saves the (already generated) estimate.
+  const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!aiRawEstimate) {
+      toast.error('Generate an AI estimate first before submitting!');
+      return;
+    }
     if (!imageFile) {
       toast.error('Please select a project image!');
       return;
     }
 
     setLoading(true);
-    const toastId = toast.loading(
-      'Uploading image and calculating budget with AI...',
-    );
+    const toastId = toast.loading('Uploading image and saving project...');
 
     const imageUrl = await uploadToImgBB(imageFile);
     if (!imageUrl) {
@@ -320,6 +425,9 @@ export default function AddItemForm({ userId }: { userId: string }) {
       image: imageUrl,
       area: Number(formData.area),
       userId,
+      aiEstimate: aiRawEstimate,
+      promptStyle,
+      outputLength,
     };
 
     const result = await postMutation<ProjectResponse, typeof payload>(
@@ -330,9 +438,9 @@ export default function AddItemForm({ userId }: { userId: string }) {
     toast.dismiss(toastId);
 
     if ('error' in result) {
-      toast.error(result.message || 'Failed to generate estimate!');
+      toast.error(result.message || 'Failed to save project!');
     } else if (result.success) {
-      toast.success('Estimate successfully generated & saved!');
+      toast.success('Project successfully saved!');
       setAiRawEstimate(result.data.aiEstimate);
     }
   };
@@ -356,7 +464,7 @@ export default function AddItemForm({ userId }: { userId: string }) {
           </p>
         </div>
 
-        <form onSubmit={handleGenerateAndSubmit} className="space-y-6">
+        <form onSubmit={handleFinalSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -435,7 +543,10 @@ export default function AddItemForm({ userId }: { userId: string }) {
                 name="area"
                 required
                 value={formData.area}
-                onChange={handleChange}
+                onChange={e => {
+                  handleChange(e);
+                  setAiRawEstimate('');
+                }}
                 placeholder="e.g., 1500"
                 className="w-full px-4 py-3 bg-[#020617] border border-slate-700 rounded-lg text-white"
               />
@@ -448,7 +559,10 @@ export default function AddItemForm({ userId }: { userId: string }) {
               <select
                 name="buildingType"
                 value={formData.buildingType}
-                onChange={handleChange}
+                onChange={e => {
+                  handleChange(e);
+                  setAiRawEstimate('');
+                }}
                 className="w-full px-4 py-3 bg-[#020617] border border-slate-700 rounded-lg text-white"
               >
                 <option value="Commercial">Commercial</option>
@@ -467,10 +581,85 @@ export default function AddItemForm({ userId }: { userId: string }) {
               name="location"
               required
               value={formData.location}
-              onChange={handleChange}
+              onChange={e => {
+                handleChange(e);
+                setAiRawEstimate('');
+              }}
               placeholder="e.g., Rangpur"
               className="w-full px-4 py-3 bg-[#020617] border border-slate-700 rounded-lg text-white"
             />
+          </div>
+
+          {/* AI Generation Controls: custom prompt template + adjustable output length */}
+          <div className="bg-[#020617] border border-slate-800 rounded-xl p-5 space-y-5">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🤖</span>
+              <h3 className="text-sm font-bold text-[#38BDF8] uppercase tracking-wider">
+                AI Generation Settings
+              </h3>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Prompt Template
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {PROMPT_STYLE_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setPromptStyle(opt.value)}
+                    className={`text-left p-3 rounded-lg border transition-all ${
+                      promptStyle === opt.value
+                        ? 'border-[#10B981] bg-[#10B981]/10'
+                        : 'border-slate-700 bg-[#0F172A] hover:border-slate-600'
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-[#F8FAFC]">
+                      {opt.label}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {opt.description}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Output Length
+              </label>
+              <select
+                value={outputLength}
+                onChange={e => setOutputLength(e.target.value as OutputLength)}
+                className="w-full px-4 py-3 bg-[#0F172A] border border-slate-700 rounded-lg text-white"
+              >
+                {OUTPUT_LENGTH_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGenerateEstimate}
+              disabled={!canGenerate || generating}
+              className="w-full py-3.5 bg-gradient-to-r from-[#38BDF8] to-[#10B981] text-[#020617] font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+            >
+              {generating
+                ? 'Generating...'
+                : aiRawEstimate
+                  ? '🔄 Regenerate Estimate'
+                  : '✨ Generate Estimate with AI'}
+            </button>
+            {!canGenerate && (
+              <p className="text-xs text-slate-500 text-center">
+                Fill in Area, Building Type and Location to enable generation.
+              </p>
+            )}
           </div>
 
           <div className="flex gap-4">
@@ -483,10 +672,13 @@ export default function AddItemForm({ userId }: { userId: string }) {
             </button>
             <button
               type="submit"
-              disabled={loading || uploadingImage}
-              className="w-3/4 py-4 bg-gradient-to-r from-[#10B981] to-[#38BDF8] text-[#020617] font-bold rounded-xl shadow-lg disabled:opacity-50 transition flex items-center justify-center gap-2"
+              disabled={loading || uploadingImage || !aiRawEstimate}
+              title={
+                !aiRawEstimate ? 'Generate an AI estimate first' : undefined
+              }
+              className="w-3/4 py-4 bg-gradient-to-r from-[#10B981] to-[#38BDF8] text-[#020617] font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
             >
-              {loading ? 'Processing...' : 'Generate with AI & Submit'}
+              {loading ? 'Saving...' : 'Submit Project'}
             </button>
           </div>
         </form>
@@ -497,15 +689,31 @@ export default function AddItemForm({ userId }: { userId: string }) {
             className="mt-10 pt-8 border-t border-slate-800 space-y-8 animate-fadeIn print:bg-white print:border-slate-300 print:mt-0 print:pt-0"
           >
             <div className="bg-[#020617] border border-slate-800 p-6 rounded-xl space-y-4 print:border-slate-300">
-              <div className="flex items-center gap-2 border-b border-slate-800 pb-3 print:border-slate-200">
-                <span className="text-xl">🤖</span>
-                <h4 className="text-lg font-bold text-[#38BDF8]">
-                  AI Raw Generated Analysis Report
-                </h4>
+              <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-3 print:border-slate-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🤖</span>
+                  <h4 className="text-lg font-bold text-[#38BDF8]">
+                    AI Raw Generated Analysis Report
+                  </h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleGenerateEstimate}
+                  disabled={generating || !canGenerate}
+                  className="print:hidden flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-700 text-slate-300 hover:border-[#10B981]/60 hover:text-[#10B981] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  {generating ? 'Regenerating...' : '🔄 Regenerate'}
+                </button>
               </div>
               <div className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap font-sans max-h-96 overflow-y-auto pr-2 print:max-h-none print:overflow-visible print:text-black">
                 {aiRawEstimate}
               </div>
+              {regenerateCount > 1 && (
+                <p className="text-xs text-slate-500 print:hidden">
+                  Regenerated {regenerateCount - 1} time
+                  {regenerateCount - 1 > 1 ? 's' : ''}.
+                </p>
+              )}
             </div>
 
             <h3 className="text-2xl font-bold text-[#38BDF8] text-center">
