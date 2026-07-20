@@ -123,7 +123,7 @@ export default function TestimonialsSection() {
               }}
             >
               {/* Quote mark */}
-              <div className="text-5xl font-serif leading-none text-slate-700 select-none">"</div>
+              <div className="text-5xl font-serif leading-none text-slate-700 select-none">``</div>
               <StarRating count={t.rating} />
               <p className="text-slate-300 text-sm leading-relaxed flex-1 -mt-2">
                 {t.quote}

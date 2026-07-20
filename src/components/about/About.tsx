@@ -45,7 +45,7 @@ interface TeamMember {
   avatarColor: string;
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// Data ─────────────────────────────────────────────────────────────────────
 
 const metrics: MetricCard[] = [
   {
@@ -140,7 +140,7 @@ const team: TeamMember[] = [
   { initials: "R", name: "RIFAT", role: "Product & UX", avatarColor: "#F59E0B" },
 ];
 
-// ─── Framer Motion Variants ───────────────────────────────────────────────────
+// Framer Motion Variants ───────────────────────────────────────────────────
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -165,7 +165,7 @@ const cardVariant = {
   },
  } as const;
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+//  Sub-components 
 
 function SectionLabel({ children, color = "emerald" }: { children: React.ReactNode; color?: "emerald" | "sky" | "violet" }) {
   const styles: Record<string, string> = {
@@ -180,7 +180,7 @@ function SectionLabel({ children, color = "emerald" }: { children: React.ReactNo
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// Main Component 
 
 export default function About() {
   return (
@@ -194,7 +194,7 @@ export default function About() {
 
       <div className="max-w-7xl mx-auto px-6">
 
-        {/* ── 1. Mission Statement ───────────────────────────────────────────── */}
+        {/*  1. Mission Statement  */}
         <section className="pt-24 pb-28 relative">
           {/* Thin top accent line */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent" />
@@ -276,7 +276,7 @@ export default function About() {
           />
         </section>
 
-        {/* ── 2. Feature Metrics Matrix ──────────────────────────────────────── */}
+        {/*  2. Feature Metrics Matrix  */}
         <section className="py-24 border-t border-slate-800/60">
           <motion.div
             className="text-center mb-14"
@@ -339,7 +339,7 @@ export default function About() {
           </motion.div>
         </section>
 
-        {/* ── 3. Strategic Tech Stack ────────────────────────────────────────── */}
+        {/*  3. Strategic Tech Stack  */}
         <section className="py-24 border-t border-slate-800/60">
           <motion.div
             className="text-center mb-14"
@@ -427,7 +427,7 @@ export default function About() {
           </motion.div>
         </section>
 
-        {/* ── 4. Team Strip ─────────────────────────────────────────────────── */}
+        {/*  4. Team Strip  */}
         <section className="py-24 border-t border-slate-800/60">
           <motion.div
             className="text-center mb-14"
@@ -481,7 +481,7 @@ export default function About() {
           </motion.div>
         </section>
 
-        {/* ── Bottom CTA strip ─────────────────────────────────────────────── */}
+        {/*  Bottom CTA strip  */}
         <section className="py-20 border-t border-slate-800/60">
           <motion.div
             className="text-center"

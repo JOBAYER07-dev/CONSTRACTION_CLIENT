@@ -15,9 +15,9 @@ export default async function ItemsLayout({
 
   if (!session) {
     redirect("/login?callbackUrl=/items/add");
-    // অথবা তুমি চাইলে redirect("/unauthorized") দিতে পারো
+    // If the user is not logged in, redirect them to the login page with a callback URL to return to the add item page after login.
   }
 
-  // ৩. ইউজার লগইন করা থাকলে পেজ দেখতে পারবে
+  // If the user is logged in, render the children components (the content of the items pages).
   return <>{children}</>;
 }

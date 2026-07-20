@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client"; // তোমার দেওয়া ইমপোর্ট
+import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
 
 export default function RegisterPage() {
@@ -85,7 +85,7 @@ export default function RegisterPage() {
     try {
       await authClient.signIn.social({
         provider: 'google',
-        callbackURL: '/', // সাইন ইন হওয়ার পর যেখানে রিডাইরেক্ট করতে চাও
+        callbackURL: '/', // Redirect to home after successful sign-in
       });
     } catch (err: unknown) {
       const message =
@@ -101,13 +101,13 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
 
-    // ১. পাসওয়ার্ড ম্যাচিং চেক
+    // 1. Check if passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
       return;
     }
 
-    // ২. পাসওয়ার্ড লেন্থ চেক
+    // 2. Check password length
     if (password.length < 8) {
       setError("Password must be at least 8 characters long.");
       return;
@@ -116,7 +116,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     let uploadedImageUrl = "";
 
-    // ৩. ইমেজ থাকলে আপলোড করা
+    // 3. Upload image if present
     if (avatar) {
       setIsUploading(true);
       const imgUrl = await uploadToImgbb(avatar);
@@ -130,7 +130,7 @@ export default function RegisterPage() {
       uploadedImageUrl = imgUrl;
     }
 
-    // ৪. Better Auth Sign-Up Trigger
+    // 4. Better Auth Sign-Up Trigger
     await authClient.signUp.email({
       email,
       password,

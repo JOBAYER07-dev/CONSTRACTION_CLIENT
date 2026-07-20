@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
-import { authClient } from "@/lib/auth-client"; // তোমার দেওয়া ক্লায়েন্ট ইমপোর্ট
+import { authClient } from "@/lib/auth-client"; 
 import "react-toastify/dist/ReactToastify.css";
 
 export default function LoginForm() {
@@ -19,7 +19,7 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
-  const [isDemoSubmitting, setIsDemoSubmitting] = useState(false); // ডেমো লগইনের জন্য নতুন স্টেট
+  const [isDemoSubmitting, setIsDemoSubmitting] = useState(false);
 
   // Google Sign-In Handler
   const handleGoogleSignIn = async () => {
@@ -67,11 +67,10 @@ export default function LoginForm() {
     });
   };
 
-  // 🌟 Demo Login Handler (আগের কোডে কোনো ইমপ্যাক্ট ফেলবে না)
+  // 🌟 Demo Login Handler 
   const handleDemoLogin = async () => {
     setIsDemoSubmitting(true);
-
-    // স্টেটে ডেমো ক্রেডেনশিয়াল সেট করা হচ্ছে ভিজ্যুয়াল ফিডব্যাকের জন্য
+// Predefined demo credentials
     const demoEmail = "d@d.com";
     const demoPassword = "D12345678";
 

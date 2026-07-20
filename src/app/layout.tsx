@@ -8,7 +8,6 @@ import ConstructiONChatbot from '@/components/layout/ConstrutiONChatbot';
 import SmoothScroll from '@/components/layout/SmoothScroll';
 import CustomCursor from '@/components/layout/CustomCursor';
 
-
 export const metadata: Metadata = {
   title: 'ConstructiON AI - Next-Gen Cost Estimation',
   description:
@@ -32,7 +31,11 @@ export default function RootLayout({
 
           <ConstructiONChatbot />
           <Footer />
-          <ToastContainer position="bottom-left" theme="dark" />
+          <ToastContainer
+            position="bottom-left"
+            theme="dark"
+            className="!z-[99999]"
+          />
         </Providers>
       </body>
     </html>

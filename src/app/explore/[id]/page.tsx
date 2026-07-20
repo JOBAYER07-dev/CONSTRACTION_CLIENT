@@ -125,7 +125,7 @@ export default function ExploreDetailsPage({
     const raw = project.aiEstimate;
     const lines = raw.split('\n');
 
-    // ফলব্যাক ডিফোল্ট ভ্যালু (যদি কোনো কিছু এক্সট্র্যাক্ট করা না যায়)
+    // Default values (in case AI fails to provide them)
     let cementBags = 500,
       cementCost = 275000;
     let steelTons = 5.4,
@@ -137,7 +137,7 @@ export default function ExploreDetailsPage({
     let laborCost = Math.round((project.area || 1000) * 250);
     let totalCost = 0;
 
-    // একটি লাইন থেকে ক্রমানুসারে সব সংখ্যা বের করার হেল্পার
+    // Helper function to extract numbers from a line
     const extractNumbers = (text: string): number[] => {
       const matches = text.match(/[\d,.]+/g);
       if (!matches) return [];
@@ -146,13 +146,13 @@ export default function ExploreDetailsPage({
         .filter(n => n > 0);
     };
 
-    // ১ম পাস: শুধুমাত্র টোটাল পরিমাণ (Total Quantity) খোঁজা
+    // 1st pass: Find only the total quantities (Total Quantity)
     lines.forEach(line => {
       const lowerLine = line.toLowerCase();
       const nums = extractNumbers(line);
       if (nums.length === 0) return;
 
-      // সাব-ক্যালকুলেশন বা ব্রেকডাউন লাইনগুলো স্কিপ করতে (যা টোটাল নয়)
+      // Skip sub-calculation or breakdown lines (which are not totals)
       const isBreakdown =
         lowerLine.includes('foundation') ||
         lowerLine.includes('slab') ||
@@ -164,7 +164,7 @@ export default function ExploreDetailsPage({
 
       if (!isBreakdown) {
         if (lowerLine.includes('cement') && lowerLine.includes('bag')) {
-          // লাইনের ১ম সংখ্যাটাই কোয়ান্টিটি
+          // The first number in the line is the quantity
           cementBags = Math.round(nums[0]);
         } else if (
           lowerLine.includes('steel') &&
@@ -182,13 +182,13 @@ export default function ExploreDetailsPage({
       }
     });
 
-    // ২য় পাস: শুধুমাত্র খরচ (Costs) এবং ফাইনাল বাজেট খোঁজা
+    // 2nd pass: Find only the costs (Costs) and final budget
     lines.forEach(line => {
       const lowerLine = line.toLowerCase();
       const nums = extractNumbers(line);
       if (nums.length === 0) return;
 
-      // কস্ট বা বিডিটি লাইনে একাধিক সংখ্যা থাকলে (যেমন: 420 bags x 420 BDT = 176400) শেষ সংখ্যাটিই বড় এবং আসল দাম
+      // The last number in a cost or budget line is the actual cost
       const possibleCost = nums.length >= 1 ? Math.max(...nums) : 0;
 
       if (
@@ -238,7 +238,7 @@ export default function ExploreDetailsPage({
       }
     });
 
-    // ৩য় পাস: যদি AI আলাদা করে টোটাল বা লেবার ফিগার ফিক্স না করে, লজিক্যাল ব্যালেন্স করা
+    // 3rd pass: Adjust labor cost if total cost is provided by AI
     const materialsSum = cementCost + steelCost + sandCost + bricksCost;
     if (totalCost === 0) {
       totalCost = materialsSum + laborCost;
@@ -246,7 +246,7 @@ export default function ExploreDetailsPage({
       laborCost === Math.round((project.area || 1000) * 250) &&
       totalCost > materialsSum
     ) {
-      // যদি AI নিজেই টোটাল কস্ট দিয়ে দেয়, তবে লেবার কস্ট হবে অবশিষ্টাংশ
+      // If AI provides the total cost separately, adjust the labor cost accordingly
       laborCost = totalCost - materialsSum;
     }
 

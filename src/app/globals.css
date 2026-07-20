@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
-/* ─── Custom Cursor ──────────────────────────────────────────────────────────
+/* ───────────────────────────────────────────────────────────────────────
+   Custom Cursor
    Hides the native OS cursor only on precise-pointer devices (mouse/trackpad)
    so the CustomCursor component (dot + trailing ring) is the only cursor the
    user sees. Touch devices are completely untouched — pointer:fine excludes
    them, so there's no risk of "losing" the cursor on mobile/tablet.
-   ─────────────────────────────────────────────────────────────────────────── */
+   ─────────────────────────────────────────────────────────────────────── */
 @media (pointer: fine) and (min-width: 768px) {
 
   html,
@@ -22,7 +23,8 @@
 }
 
 
-/* ─── Brand Color Policy ────────────────────────────────────────────────────
+/* ───────────────────────────────────────────────────────────────────────
+   Brand Color Policy
    Primary palette (2 colors + neutral, per project UI rules):
      - Emerald #10B981  → primary brand / CTA color
      - Sky     #38BDF8  → secondary brand / accent color
@@ -34,13 +36,14 @@
        required so users can visually distinguish material categories
      - #4285F4/#34A853/#FBBC05/#EA4335 → Google's official brand colors,
        required by Google's sign-in button branding guidelines
-   ─────────────────────────────────────────────────────────────────────────── */
+   ─────────────────────────────────────────────────────────────────────── */
 
-/* ─── Print Styles ──────────────────────────────────────────────────────────
+/* ───────────────────────────────────────────────────────────────────────
+   Print Styles
    Suppresses all layout chrome (Navbar, Footer, Chatbot) and prepares a
    clean single-page PDF output. Applied globally so both /items/add and
    /explore/[id] PDF exports render consistently.
-   ─────────────────────────────────────────────────────────────────────────── */
+   ─────────────────────────────────────────────────────────────────────── */
 @media print {
 
   /* Hide persistent layout elements */

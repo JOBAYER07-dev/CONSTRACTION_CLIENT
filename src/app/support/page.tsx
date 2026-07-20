@@ -13,7 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+//  Types 
 
 interface ContactCard {
   id: string;
@@ -38,7 +38,7 @@ interface TicketForm {
 
 type SubmitStatus = "idle" | "success" | "error";
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+//  Data 
 
 const contactCards: ContactCard[] = [
   {
@@ -90,7 +90,7 @@ const priorityOptions: { value: TicketForm["priority"]; label: string; color: st
   { value: "critical", label: "Critical Structural — System failure or data loss", color: "#EF4444" },
 ];
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+//  Sub-components 
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -136,7 +136,7 @@ function InputField({
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+//  Main Component 
 
 export default function SupportPage() {
   const [form, setForm] = useState<TicketForm>({
@@ -194,7 +194,7 @@ export default function SupportPage() {
 
       <div className="max-w-6xl mx-auto px-6 py-20">
 
-        {/* ── 1. Header ─────────────────────────────────────────────────────── */}
+        {/*    1. Header   */}
         <div className="text-center mb-20">
           <SectionLabel>
             <Zap className="w-3.5 h-3.5" />
@@ -225,7 +225,7 @@ export default function SupportPage() {
           </div>
         </div>
 
-        {/* ── 2. Quick Contact Grid ──────────────────────────────────────────── */}
+        {/*    2. Quick Contact Grid   */}
         <div className="grid md:grid-cols-3 gap-5 mb-20">
           {contactCards.map((card) => {
             const Icon = card.icon;
@@ -290,7 +290,7 @@ export default function SupportPage() {
           })}
         </div>
 
-        {/* ── 3. Ticket Generation Form ──────────────────────────────────────── */}
+        {/*    3. Ticket Generation Form   */}
         <div
           id="ticket"
           className="rounded-2xl border border-slate-800/80 bg-[#0F172A]/60 backdrop-blur-md p-8 md:p-12 relative overflow-hidden"

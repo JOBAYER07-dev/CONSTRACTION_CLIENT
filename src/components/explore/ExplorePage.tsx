@@ -9,6 +9,7 @@ import { getMutation } from '@/lib/core/server';
 interface Project {
   _id: string;
   title: string;
+  shortDescription: string;
   image: string;
   area: number;
   buildingType: string;
@@ -293,6 +294,9 @@ export default function ExplorePage() {
                           <h3 className="font-bold text-lg text-slate-100 group-hover:text-emerald-400 transition-colors line-clamp-1">
                             {project.title}
                           </h3>
+                          <p className="text-sm text-slate-400 line-clamp-2">
+                            {project.shortDescription}
+                          </p>
                           <div className="flex items-center text-sm text-slate-400 gap-1.5">
                             <svg
                               className="h-4 w-4 text-emerald-500 flex-shrink-0"
