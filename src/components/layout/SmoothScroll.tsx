@@ -8,6 +8,12 @@ export default function SmoothScroll() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Motion-sensitive user-der jonno Lenis skip koro
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    if (prefersReducedMotion) return;
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -24,8 +30,6 @@ export default function SmoothScroll() {
 
     rafId = requestAnimationFrame(raf);
 
-    // Content-er height change hole (charts/images/AI data load howar por)
-    // Lenis-ke bole dao page-er notun height recalculate korte
     const resizeObserver = new ResizeObserver(() => {
       lenis.resize();
     });
@@ -36,7 +40,7 @@ export default function SmoothScroll() {
       resizeObserver.disconnect();
       lenis.destroy();
     };
-    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   return null;
