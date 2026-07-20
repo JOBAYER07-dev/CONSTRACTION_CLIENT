@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 
 export default function SmoothScroll() {
+  const pathname = usePathname();
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -21,11 +24,20 @@ export default function SmoothScroll() {
 
     rafId = requestAnimationFrame(raf);
 
+    // Content-er height change hole (charts/images/AI data load howar por)
+    // Lenis-ke bole dao page-er notun height recalculate korte
+    const resizeObserver = new ResizeObserver(() => {
+      lenis.resize();
+    });
+    resizeObserver.observe(document.body);
+
     return () => {
       cancelAnimationFrame(rafId);
+      resizeObserver.disconnect();
       lenis.destroy();
     };
-  }, []);
+    
+  }, [pathname]);
 
   return null;
 }
