@@ -4,6 +4,27 @@
 
 Plan smarter. Estimate faster. Build better.
 
+# 🌐 Live Demo
+
+**Live Website:** https://constraction-client.vercel.app
+
+**Frontend Repository:** https://github.com/JOBAYER07-dev/CONSTRACTION_CLIENT
+
+**Backend Repository:** https://github.com/JOBAYER07-dev/CONSTRACTION_SERVER
+
+### ⚡ Backend API
+
+https://constraction-server.onrender.com
+
+---
+
+# 🔑 Demo Credentials
+
+You can log in instantly using the **Demo Login** button on the login page (auto-fills credentials), or manually use:
+
+**Email:** d@d.com
+**Password:** D12345678
+
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-blue?logo=typescript)
 ![MongoDB](https://img.shields.io/badge/MongoDB-green?logo=mongodb)
@@ -17,18 +38,6 @@ Plan smarter. Estimate faster. Build better.
 constractiON AI is an AI-powered web application designed to simplify construction planning. Users can generate intelligent construction estimates, manage their saved projects, and receive instant construction guidance through an AI assistant.
 
 The application combines modern web technologies with AI to make preliminary planning faster, smarter, and more accessible for students, contractors, and homeowners.
-
----
-
-## 🌐 Live Demo
-
-### 🚀 Live Website
-
-https://constraction-client.vercel.app
-
-### ⚡ Backend API
-
-https://your-backend-url.onrender.com
 
 ---
 
